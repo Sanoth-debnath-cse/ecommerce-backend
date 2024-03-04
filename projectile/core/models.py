@@ -1,34 +1,16 @@
-import uuid
-
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
-from django.utils import timezone
 
 from autoslug import AutoSlugField
 from phonenumber_field.modelfields import PhoneNumberField
 from versatileimagefield.fields import VersatileImageField, PPOIField
-from dirtyfields import DirtyFieldsMixin
 
 from .utils import get_slug_full_name
+from shared.base_model import BaseModel
 
 
-class BaseModel(models.Model, DirtyFieldsMixin):
-    class Meta:
-        abstract = True
-
-    uid = models.UUIDField(
-        default=uuid.uuid4, editable=False, unique=True, db_index=True
-    )
-    created_at = models.DateTimeField(default=timezone.now, editable=False)
-    updated_at = models.DateTimeField(blank=True)
-
-    def save(self, *args, **kwargs):
-        self.updated_at = timezone.now()
-        super().save(*args, **kwargs)
-
-
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
     phone = PhoneNumberField(unique=True, db_index=True)

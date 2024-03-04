@@ -43,6 +43,9 @@ INSTALLED_APPS = [
     "shopio.apps.ShopioConfig",
 ]
 
+# set base auth user model
+AUTH_USER_MODEL = "core.User"
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
