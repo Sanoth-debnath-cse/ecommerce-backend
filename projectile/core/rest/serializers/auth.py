@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 
 from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from phonenumber_field.serializerfields import PhoneNumberField
 from versatileimagefield.serializers import VersatileImageFieldSerializer
@@ -35,7 +36,7 @@ class UserRegistrationSerializer(serializers.Serializer):
         try:
             User.objects.get(phone=phone)
             raise serializers.ValidationError(
-                "This Phone number already by another user"
+                "This Phone number already used by another user"
             )
         except User.DoesNotExist:
             return phone
@@ -43,12 +44,12 @@ class UserRegistrationSerializer(serializers.Serializer):
     def validate_password(self, password):
         if len(password) < 6:
             raise serializers.ValidationError(
-                {"details": "Password must be at least 6 characters long!"}
+                "Password must be at least 6 characters long!"
             )
         return password
 
     def create(self, validated_data):
-        User.objects.get_or_create(
+        user, _ = User.objects.get_or_create(
             phone=validated_data["phone"],
             defaults={
                 "phone": validated_data.get("phone"),
@@ -59,3 +60,9 @@ class UserRegistrationSerializer(serializers.Serializer):
                 "image": validated_data.get("image", None),
             },
         )
+        refresh = RefreshToken.for_user(user)
+        validated_data["refresh"], validated_data["access"] = str(refresh), str(
+            refresh.access_token
+        )
+
+        return validated_data
