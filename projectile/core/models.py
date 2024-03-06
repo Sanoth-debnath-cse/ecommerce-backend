@@ -7,6 +7,8 @@ from phonenumber_field.modelfields import PhoneNumberField
 from versatileimagefield.fields import VersatileImageField, PPOIField
 
 from .utils import get_slug_full_name
+from .managers import CustomUserManager
+
 from shared.base_model import BaseModel
 
 
@@ -33,6 +35,7 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
 
     # additional settings for User
     USERNAME_FIELD = "phone"
+    objects = CustomUserManager()
 
     def __str__(self):
         name = f"{self.first_name} {self.last_name}"

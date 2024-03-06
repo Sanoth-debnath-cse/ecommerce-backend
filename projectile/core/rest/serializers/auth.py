@@ -3,6 +3,7 @@ from django.contrib.auth.hashers import make_password
 
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import NotFound
 
 from phonenumber_field.serializerfields import PhoneNumberField
 from versatileimagefield.serializers import VersatileImageFieldSerializer
@@ -65,4 +66,39 @@ class UserRegistrationSerializer(serializers.Serializer):
             refresh.access_token
         )
 
+        return validated_data
+
+
+class UserTokenSerializer(serializers.Serializer):
+    phone = PhoneNumberField(required=True)
+    password = serializers.CharField(
+        min_length=5,
+        max_length=100,
+        write_only=True,
+    )
+    refresh = serializers.CharField(max_length=255, read_only=True)
+    access = serializers.CharField(max_length=255, read_only=True)
+
+    def validate(self, attrs):
+        phone = attrs.get("phone")
+        password = attrs.get("password")
+
+        try:
+            user = User.objects.get(phone=phone)
+            attrs["user"] = user
+        except User.DoesNotExist:
+            raise NotFound(detail="User does not exists")
+
+        if not user.check_password(password):
+            raise NotFound(detail="Invalid user password")
+
+        return attrs
+
+    def create(self, validated_data):
+        user: User = validated_data.get("user")
+
+        refresh = RefreshToken.for_user(user)
+        validated_data["refresh"], validated_data["access"] = str(refresh), str(
+            refresh.access_token
+        )
         return validated_data

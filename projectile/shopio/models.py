@@ -5,16 +5,15 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from shared.base_model import BaseModel
 
-
 User = get_user_model()
 
 
 class Shop(BaseModel):
     name = models.CharField(max_length=255)
     owner = models.ManyToManyField(User)
-    description = models.TextField()
-    terms_condition = models.TextField()
-    privacy_policy = models.TextField()
+    description = models.TextField(blank=True)
+    terms_condition = models.TextField(blank=True)
+    privacy_policy = models.TextField(blank=True)
     short_pitch = models.CharField(max_length=500, blank=True)
     contact_number = PhoneNumberField(null=True, blank=True)
     contact_email = models.EmailField(null=True, blank=True)
