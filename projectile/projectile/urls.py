@@ -29,4 +29,5 @@ urlpatterns = [
     path("api/v1/auth", include("core.rest.urls")),
     path("api/v1/shop", include("shopio.rest.urls")),
     path("api/v1/me", include("core.rest.urls.me")),
+    path("api/v1/products", include("productio.rest.urls")),
 ]
