@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     "shopio.apps.ShopioConfig",
     "rest_framework_simplejwt",
     "drf_spectacular",
+    "productio.apps.ProductioConfig",
+    "mediaroomio.apps.MediaroomioConfig",
 ]
 
 # set base auth user model
