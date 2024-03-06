@@ -14,7 +14,7 @@ class Product(BaseModel):
     short_pitch = models.CharField(max_length=1000, blank=True)
     slug = AutoSlugField(populate_from="name", unique=True, unique_with="name")
     description = models.TextField(blank=True)
-    unit_price = models.DecimalField(max_digits=8, decimal_places=3)
+    unit_price = models.DecimalField(max_digits=8, decimal_places=3, default=0)
     stock = models.PositiveIntegerField(default=0)
     is_published = models.BooleanField(default=True)
     category = models.ForeignKey(
