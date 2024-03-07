@@ -38,9 +38,9 @@ class PublicMeSerializer(serializers.ModelSerializer):
 
     def get_shop(self, obj):
         if obj.is_staff and obj.is_superuser:
-            try:
-                shob_obj = Shop.objects.get(owner=obj)
+            shob_obj = Shop.objects.filter(owner=obj).first()
+            if shob_obj:
                 return ShopSerializer(shob_obj).data
-            except Shop.DoesNotExist:
+            else:
                 return None
         return None
