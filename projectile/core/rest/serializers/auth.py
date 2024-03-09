@@ -3,7 +3,7 @@ from django.contrib.auth.hashers import make_password
 
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 
 from phonenumber_field.serializerfields import PhoneNumberField
 from versatileimagefield.serializers import VersatileImageFieldSerializer
@@ -97,6 +97,11 @@ class UserTokenSerializer(serializers.Serializer):
     def create(self, validated_data):
         user: User = validated_data.get("user")
 
+        role = self.context.get("request").query_params.get("as", None)
+
+        if role == "admin":
+            if not (user.is_superuser and user.is_staff):
+                raise ValidationError({"detail": "Only admin can perform this action"})
         refresh = RefreshToken.for_user(user)
         validated_data["refresh"], validated_data["access"] = str(refresh), str(
             refresh.access_token

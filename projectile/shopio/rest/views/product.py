@@ -15,7 +15,9 @@ class PrivateProductListView(ListCreateAPIView):
     serializer_class = PrivateProductListSerializer
 
     def get_queryset(self):
-        return Product.objects.select_related("category").filter()
+        return (
+            Product.objects.select_related("category").filter().order_by("-created_at")
+        )
 
 
 class PrivateProductDetailsView(RetrieveUpdateDestroyAPIView):
