@@ -13,6 +13,16 @@ from mediaroomio.rest.serializers.mediaroom import PublicMediaRoomSerializer
 from shared.variables import versatile_image_size
 
 
+class ImageSerializer(serializers.Serializer):
+    image = VersatileImageFieldSerializer(
+        allow_null=True,
+        allow_empty_file=True,
+        sizes=versatile_image_size,
+        write_only=True,
+        required=False,
+    )
+
+
 class PrivateProductStockSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductStock
@@ -55,15 +65,16 @@ class PrivateProductListSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False,
     )
-    additional_images = serializers.ListField(
-        child=VersatileImageFieldSerializer(
-            sizes=versatile_image_size, write_only=True, allow_empty_file=True
-        ),
-        write_only=True,
-        required=False,
-        allow_null=True,
-        allow_empty=True,
-    )
+    # additional_images = serializers.ListField(
+    #     child=VersatileImageFieldSerializer(
+    #         sizes=versatile_image_size, write_only=True, allow_empty_file=True
+    #     ),
+    #     write_only=True,
+    #     required=False,
+    #     allow_null=True,
+    #     allow_empty=True,
+    # )
+    additional_images = ImageSerializer(many=True, required=False, write_only=True)
     images = PublicMediaRoomSerializer(read_only=True, many=True)
 
     class Meta:
@@ -97,6 +108,7 @@ class PrivateProductListSerializer(serializers.ModelSerializer):
         primary_image = validated_data.pop("primary_image", None)
         secondary_image = validated_data.pop("secondary_image", None)
         additional_images = validated_data.pop("additional_images", [])
+        print(additional_images, "<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>")
 
         # extract stock
         stock = validated_data.pop("stock", "")

@@ -4,12 +4,15 @@ from rest_framework.exceptions import NotFound
 
 from productio.models import Product
 
-from productio.rest.serializers.products import PublicProductsListSerializer
+from productio.rest.serializers.products import (
+    PublicProductListSerializer,
+    PublicProductsDetailsSerializer,
+)
 
 
 class PublicProductsListView(ListAPIView):
     permission_classes = [AllowAny]
-    serializer_class = PublicProductsListSerializer
+    serializer_class = PublicProductListSerializer
 
     def get_queryset(self):
         return Product.objects.filter(is_published__isnull=False)
@@ -17,7 +20,7 @@ class PublicProductsListView(ListAPIView):
 
 class PublicProductsDetailsView(RetrieveAPIView):
     permission_classes = [AllowAny]
-    serializer_class = PublicProductsListSerializer
+    serializer_class = PublicProductsDetailsSerializer
 
     def get_object(self):
         product_slug = self.kwargs.get("product_slug")
