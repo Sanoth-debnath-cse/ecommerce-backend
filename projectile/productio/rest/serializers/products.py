@@ -8,5 +8,5 @@ from shopio.rest.serializers.product import PrivateProductListSerializer
 class PublicProductsListSerializer(PrivateProductListSerializer):
     class Meta:
         model = Product
-        fields = PrivateProductListSerializer.Meta.fields + ["slug"]
-        read_only_fields = PrivateProductListSerializer.Meta.fields + ["slug"]
+        fields = PrivateProductListSerializer.Meta.fields
+        read_only_fields = PrivateProductListSerializer.Meta.fields

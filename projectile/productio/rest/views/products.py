@@ -23,6 +23,6 @@ class PublicProductsDetailsView(RetrieveAPIView):
         product_slug = self.kwargs.get("product_slug")
 
         try:
-            return Product.objects.get(slug=product_slug)
+            return Product.objects.get(slug=product_slug, is_published=True)
         except Product.DoesNotExist:
             raise NotFound(detail="Product not found")

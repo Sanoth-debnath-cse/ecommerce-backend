@@ -70,6 +70,7 @@ class PrivateProductListSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             "uid",
+            "slug",
             "created_at",
             "updated_at",
             "name",
