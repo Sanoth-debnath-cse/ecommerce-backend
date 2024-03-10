@@ -1,11 +1,13 @@
 import json
 
+from django.db.models import Sum
+
 from rest_framework import serializers
+from rest_framework.exceptions import NotFound
 
 from versatileimagefield.serializers import VersatileImageFieldSerializer
 
 from productio.models import Product, Category, ProductStock, ProductStockConnector
-
 from mediaroomio.models import MediaRoom, MediaRoomConnector
 from mediaroomio.choices import MediaKindChoices
 from mediaroomio.rest.serializers.mediaroom import PublicMediaRoomSerializer
@@ -13,7 +15,7 @@ from mediaroomio.rest.serializers.mediaroom import PublicMediaRoomSerializer
 from shared.variables import versatile_image_size
 
 
-class ImageSerializer(serializers.Serializer):
+class PrivateImageCreateSerializer(serializers.Serializer):
     image = VersatileImageFieldSerializer(
         allow_null=True,
         allow_empty_file=True,
@@ -21,6 +23,26 @@ class ImageSerializer(serializers.Serializer):
         write_only=True,
         required=False,
     )
+
+    def create(self, validated_data):
+        product_uid = self.context["view"].kwargs.get("product_uid")
+        image = validated_data.pop("image", None)
+
+        try:
+            product = Product.objects.get(uid=product_uid)
+        except Product.DoesNotExist:
+            raise NotFound(detail="Product not found")
+
+        if image:
+            additional_image = MediaRoom.objects.create(
+                image=image, type=MediaKindChoices.ADDITIONAL_PRODUCT_IMAGE
+            )
+            MediaRoomConnector.objects.create(
+                media_room=additional_image,
+                type=MediaKindChoices.ADDITIONAL_PRODUCT_IMAGE,
+                product=product,
+            )
+        return product
 
 
 class PrivateProductStockSerializer(serializers.ModelSerializer):
@@ -65,17 +87,20 @@ class PrivateProductListSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False,
     )
-    # additional_images = serializers.ListField(
-    #     child=VersatileImageFieldSerializer(
-    #         sizes=versatile_image_size, write_only=True, allow_empty_file=True
-    #     ),
-    #     write_only=True,
-    #     required=False,
-    #     allow_null=True,
-    #     allow_empty=True,
-    # )
-    additional_images = ImageSerializer(many=True, required=False, write_only=True)
-    images = PublicMediaRoomSerializer(read_only=True, many=True)
+    additional_images = serializers.ListField(
+        child=VersatileImageFieldSerializer(
+            sizes=versatile_image_size, write_only=True, allow_empty_file=True
+        ),
+        write_only=True,
+        required=False,
+        allow_null=True,
+        allow_empty=True,
+    )
+    primary_image_view = serializers.SerializerMethodField()
+    is_stock = serializers.SerializerMethodField()
+    total_sold_items = serializers.IntegerField(read_only=True, default=0)
+    total_amount = serializers.IntegerField(read_only=True, default=0)
+    # images = PublicMediaRoomSerializer(read_only=True, many=True)
 
     class Meta:
         model = Product
@@ -90,7 +115,7 @@ class PrivateProductListSerializer(serializers.ModelSerializer):
             "unit_price",
             "stock",
             "stock_size",
-            "images",
+            # "images",
             "details",
             "sizing",
             "care",
@@ -100,15 +125,39 @@ class PrivateProductListSerializer(serializers.ModelSerializer):
             "primary_image",
             "secondary_image",
             "additional_images",
+            "primary_image_view",
+            "is_stock",
+            "total_sold_items",
+            "total_amount",
         ]
         read_only_fields = ["uid", "created_at", "updated_at", "is_published"]
+
+    def get_primary_image_view(self, obj):
+        primary_obj = MediaRoomConnector.objects.filter(
+            product=obj, type=MediaKindChoices.PRIMARY_PRODUCT_IMAGE
+        ).first()
+        if primary_obj:
+            return PublicMediaRoomSerializer(
+                primary_obj.media_room, context=self.context
+            ).data
+        return None
+
+    def get_is_stock(self, obj):
+        stock_obj = (
+            ProductStockConnector.objects.filter(product=obj).aggregate(
+                total_stock=Sum("stock__stock")
+            ),
+        )
+        stock = stock_obj[0].get("total_stock")
+        if stock:
+            return True
+        return False
 
     def create(self, validated_data):
         # extract all images fields
         primary_image = validated_data.pop("primary_image", None)
         secondary_image = validated_data.pop("secondary_image", None)
         additional_images = validated_data.pop("additional_images", [])
-        print(additional_images, "<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>")
 
         # extract stock
         stock = validated_data.pop("stock", "")
@@ -170,7 +219,8 @@ class PrivateProductDetailsSerializer(serializers.ModelSerializer):
         allow_empty=True,
         required=False,
     )
-    all_images = serializers.SerializerMethodField()
+    images = PublicMediaRoomSerializer(read_only=True, many=True)
+    stock = PrivateProductStockSerializer(read_only=True, many=True)
 
     class Meta:
         model = Product
@@ -185,10 +235,6 @@ class PrivateProductDetailsSerializer(serializers.ModelSerializer):
             "stock",
             "is_published",
             "category",
-            "all_images",
+            "images",
         ]
         read_only_fields = ["uid", "created_at", "updated_at"]
-
-    def get_all_images(self, instance):
-        images = MediaRoom.objects.filter(mediaroomconnector__product=instance)
-        return PublicMediaRoomSerializer(images, many=True, context=self.context).data

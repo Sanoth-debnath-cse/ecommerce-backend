@@ -1,10 +1,15 @@
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+    CreateAPIView,
+)
 from rest_framework.exceptions import NotFound
 
 from productio.models import Product
 from shopio.rest.serializers.product import (
     PrivateProductListSerializer,
     PrivateProductDetailsSerializer,
+    PrivateImageCreateSerializer,
 )
 
 from shared.permission import IsShopOwner
@@ -31,3 +36,8 @@ class PrivateProductDetailsView(RetrieveUpdateDestroyAPIView):
             return Product.objects.get(uid=product_uid)
         except Product.DoesNotExist:
             raise NotFound(detail="Product does not exists")
+
+
+class PrivateImageCreateView(CreateAPIView):
+    permission_classes = [IsShopOwner]
+    serializer_class = PrivateImageCreateSerializer

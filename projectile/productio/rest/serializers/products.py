@@ -51,17 +51,36 @@ class PublicProductListSerializer(serializers.ModelSerializer):
         return None
 
     def get_is_stock(self, obj):
-        stock_obj = ProductStockConnector.objects.filter(product=obj).aggregate(
-            total_stock=Sum("stock__stock")
+        stock_obj = (
+            ProductStockConnector.objects.filter(product=obj).aggregate(
+                total_stock=Sum("stock__stock")
+            ),
         )
-
-        if stock_obj["total_stock"] > 0:
+        stock = stock_obj[0].get("total_stock")
+        if stock:
             return True
         return False
 
 
 class PublicProductsDetailsSerializer(PrivateProductListSerializer):
+    images = PublicMediaRoomSerializer(read_only=True, many=True)
+
     class Meta:
         model = Product
-        fields = PrivateProductListSerializer.Meta.fields
-        read_only_fields = PrivateProductListSerializer.Meta.fields
+        fields = PrivateProductListSerializer.Meta.fields + ["images"]
+        read_only_fields = PrivateProductListSerializer.Meta.fields + ["images"]
+
+
+class PublicProductsCartSerializer(serializers.Serializer):
+    slug = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    quantity = serializers.IntegerField(required=False, allow_null=True)
+    size = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+
+
+class PublicProductsCartVerifySerializer(serializers.ModelSerializer):
+    carts = PublicProductsCartSerializer(write_only=True, many=True)
+
+    class Meta:
+        model = Product
+        fields = ["uid", "slug", "created_at", "updated_at", "name"]
+        read_only_fields = ["uid", "created_at", "updated_at"]
