@@ -25,7 +25,7 @@ class PublicProductsListView(ListAPIView):
     serializer_class = PublicProductListSerializer
 
     def get_queryset(self):
-        return Product.objects.filter(is_published__isnull=False)
+        return Product.objects.filter(is_published=True)
 
 
 class PublicProductsDetailsView(RetrieveAPIView):

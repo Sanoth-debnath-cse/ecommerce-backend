@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "productio.apps.ProductioConfig",
     "mediaroomio.apps.MediaroomioConfig",
     "corsheaders",
+    "orderio.apps.OrderioConfig",
 ]
 
 # set base auth user model
