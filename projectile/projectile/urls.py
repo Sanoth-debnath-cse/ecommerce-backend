@@ -32,6 +32,7 @@ urlpatterns = [
     path("api/v1/shop", include("shopio.rest.urls")),
     path("api/v1/me", include("core.rest.urls.me")),
     path("api/v1/products", include("productio.rest.urls")),
+    path("api/v1/carts", include("productio.rest.urls.carts")),
 ]
 
 if settings.DEBUG:

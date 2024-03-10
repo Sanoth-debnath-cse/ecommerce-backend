@@ -236,5 +236,9 @@ class PrivateProductDetailsSerializer(serializers.ModelSerializer):
             "is_published",
             "category",
             "images",
+            "details",
+            "sizing",
+            "care",
+            "delivery_and_returns",
         ]
         read_only_fields = ["uid", "created_at", "updated_at"]

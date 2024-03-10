@@ -19,6 +19,7 @@ class ShopSerializer(serializers.ModelSerializer):
             "contact_email",
             "contact_website",
             "other_website",
+            "shipping_charges",
         ]
         read_only_fields = [
             "uid",

@@ -19,6 +19,7 @@ class Shop(BaseModel):
     contact_email = models.EmailField(null=True, blank=True)
     contact_website = models.URLField(null=True, blank=True)
     other_website = models.URLField(null=True, blank=True)
+    shipping_charges = models.DecimalField(default=0, max_digits=8, decimal_places=4)
 
 
 class Addresses(BaseModel):

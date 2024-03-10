@@ -72,15 +72,44 @@ class PublicProductsDetailsSerializer(PrivateProductListSerializer):
 
 
 class PublicProductsCartSerializer(serializers.Serializer):
-    slug = serializers.CharField(required=False, allow_blank=True, allow_null=True)
-    quantity = serializers.IntegerField(required=False, allow_null=True)
-    size = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    slug = serializers.CharField()
+    quantity = serializers.IntegerField()
+    size = serializers.CharField()
 
 
-class PublicProductsCartVerifySerializer(serializers.ModelSerializer):
-    carts = PublicProductsCartSerializer(write_only=True, many=True)
-
-    class Meta:
-        model = Product
-        fields = ["uid", "slug", "created_at", "updated_at", "name"]
-        read_only_fields = ["uid", "created_at", "updated_at"]
+# class PublicProductsCartVerifySerializer(serializers.ModelSerializer):
+#     carts = PublicProductsCartSerializer(write_only=True, many=True)
+#
+#     class Meta:
+#         model = Product
+#         fields = ["uid", "slug", "created_at", "updated_at", "name", "carts"]
+#         read_only_fields = ["uid", "created_at", "updated_at", "name"]
+#
+#     def create(self, validated_data):
+#         cart_data = validated_data.pop("carts", [])
+#         print(cart_data, "<<<<<<<<<<<>>>>>>>>>>>>>>>>>")
+#
+#         update_product_data = []
+#
+#         for product in cart_data:
+#             slug = product.get("slug", "")
+#             quantity = product.get("quantity", 0)
+#             size = product.get("size", "")
+#
+#             try:
+#                 product = Product.objects.get(slug=slug)
+#                 product_data = {
+#                     "uid": product.uid,
+#                     "slug": product.slug,
+#                     "created_at": product.created_at,
+#                     "updated_at": product.updated_at,
+#                     "name": product.name,
+#                     "quantity": quantity,
+#                     "size": size,
+#                     "sanoth": "debnath",
+#                 }
+#                 update_product_data.append(product_data)
+#             except Product.DoesNotExist:
+#                 continue
+#
+#         return update_product_data
