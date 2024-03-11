@@ -219,7 +219,12 @@ class PrivateProductDetailsSerializer(serializers.ModelSerializer):
         required=False,
     )
     images = PublicMediaRoomSerializer(read_only=True, many=True)
-    stock = PrivateProductStockSerializer(read_only=True, many=True)
+    stock = serializers.CharField(
+        required=False, allow_blank=True, write_only=True, allow_null=True
+    )
+    stock_size = PrivateProductStockSerializer(
+        read_only=True, many=True, source="stock"
+    )
 
     class Meta:
         model = Product
@@ -232,6 +237,7 @@ class PrivateProductDetailsSerializer(serializers.ModelSerializer):
             "description",
             "unit_price",
             "stock",
+            "stock_size",
             "is_published",
             "category",
             "images",
@@ -241,3 +247,21 @@ class PrivateProductDetailsSerializer(serializers.ModelSerializer):
             "delivery_and_returns",
         ]
         read_only_fields = ["uid", "created_at", "updated_at"]
+
+    def update(self, instance, validated_data):
+        instance.stock.clear()
+
+        stock = validated_data.pop("stock", "")
+
+        instance = super().update(instance, validated_data)
+
+        stock_data = json.loads(stock) if stock else []
+
+        for data in stock_data:
+            product_stock_data = ProductStock.objects.create(
+                size=data.get("size", ""), stock=data.get("stock", 0)
+            )
+            ProductStockConnector.objects.create(
+                stock=product_stock_data, product=instance
+            )
+        return instance
