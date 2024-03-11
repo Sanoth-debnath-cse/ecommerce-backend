@@ -115,7 +115,6 @@ class PrivateProductListSerializer(serializers.ModelSerializer):
             "unit_price",
             "stock",
             "stock_size",
-            # "images",
             "details",
             "sizing",
             "care",

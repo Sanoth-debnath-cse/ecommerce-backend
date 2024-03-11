@@ -2,11 +2,11 @@ from django.db.models import Sum
 
 from rest_framework import serializers
 
-from mediaroomio.models import MediaRoom, MediaRoomConnector
+from mediaroomio.models import MediaRoomConnector
 from mediaroomio.choices import MediaKindChoices
 from mediaroomio.rest.serializers.mediaroom import PublicMediaRoomSerializer
 
-from productio.models import Product, ProductStock, ProductStockConnector
+from productio.models import Product, ProductStockConnector
 
 from shopio.rest.serializers.product import PrivateProductListSerializer
 
