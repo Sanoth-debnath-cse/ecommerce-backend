@@ -4,9 +4,15 @@ from shopio.rest.views.product import (
     PrivateProductListView,
     PrivateProductDetailsView,
     PrivateImageCreateView,
+    PrivateProductPublishView,
 )
 
 urlpatterns = [
+    path(
+        "/<uuid:product_uid>/publish",
+        PrivateProductPublishView.as_view(),
+        name="private-product-publish",
+    ),
     path(
         "/<uuid:product_uid>/add-image",
         PrivateImageCreateView.as_view(),

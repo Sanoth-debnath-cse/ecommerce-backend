@@ -4,6 +4,9 @@ from rest_framework.generics import (
     CreateAPIView,
 )
 from rest_framework.exceptions import NotFound
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
 
 from productio.models import Product
 from shopio.rest.serializers.product import (
@@ -41,3 +44,24 @@ class PrivateProductDetailsView(RetrieveUpdateDestroyAPIView):
 class PrivateImageCreateView(CreateAPIView):
     permission_classes = [IsShopOwner]
     serializer_class = PrivateImageCreateSerializer
+
+
+class PrivateProductPublishView(APIView):
+    permission_classes = [IsShopOwner]
+
+    def patch(self, request, *args, **kwargs):
+        product_uid = self.kwargs.get("product_uid")
+
+        try:
+            product = Product.objects.get(uid=product_uid)
+        except Product.DoesNotExist:
+            raise NotFound(detail="Product does not found")
+
+        if product.is_published:
+            product.is_published = False
+        else:
+            product.is_published = True
+
+        product.save()
+
+        return Response(status=status.HTTP_200_OK)
