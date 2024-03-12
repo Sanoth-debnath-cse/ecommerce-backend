@@ -5,6 +5,7 @@ from shopio.rest.views.product import (
     PrivateProductDetailsView,
     PrivateImageCreateView,
     PrivateProductPublishView,
+    PrivateImageDeleteView,
 )
 
 urlpatterns = [
@@ -22,6 +23,11 @@ urlpatterns = [
         "/<uuid:product_uid>",
         PrivateProductDetailsView.as_view(),
         name="private-product-details",
+    ),
+    path(
+        "/image/<uuid:image_uid>",
+        PrivateImageDeleteView.as_view(),
+        name="private-product-image-delete",
     ),
     path("", PrivateProductListView.as_view(), name="private.product-list"),
 ]

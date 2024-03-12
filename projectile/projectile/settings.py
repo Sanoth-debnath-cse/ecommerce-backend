@@ -182,4 +182,4 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "https://melee-one.vercel.app"]
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "https://melee-one.vercel.app","http://62.72.3.148"]

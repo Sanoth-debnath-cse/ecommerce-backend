@@ -14,7 +14,7 @@ from shopio.rest.serializers.product import (
     PrivateProductDetailsSerializer,
     PrivateImageCreateSerializer,
 )
-
+from mediaroomio.models import MediaRoom
 from shared.permission import IsShopOwner
 
 
@@ -63,5 +63,20 @@ class PrivateProductPublishView(APIView):
             product.is_published = True
 
         product.save()
+
+        return Response(status=status.HTTP_200_OK)
+
+
+class PrivateImageDeleteView(APIView):
+    permission_classes = [IsShopOwner]
+
+    def delete(self, request, *args, **kwargs):
+        image_uid = self.kwargs.get("image_uid")
+
+        try:
+            media_obj = MediaRoom.objects.get(uid=image_uid)
+            media_obj.delete()
+        except MediaRoom.DoesNotExist:
+            raise NotFound(detail="Image not found")
 
         return Response(status=status.HTTP_200_OK)
