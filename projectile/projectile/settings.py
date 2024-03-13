@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "mediaroomio.apps.MediaroomioConfig",
     "corsheaders",
     "orderio.apps.OrderioConfig",
+    "django_extensions",
 ]
 
 # set base auth user model
