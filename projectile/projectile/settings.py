@@ -103,15 +103,12 @@ WSGI_APPLICATION = "projectile.wsgi.application"
 # }
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": "ecommerce",
         "USER": "sanoth",
         "PASSWORD": "sanoth",
         "HOST": "127.0.0.1",
-        "PORT": "3306",
-        "OPTIONS": {
-            "sql_mode": "traditional",
-        },
+        "PORT": "5432",
     }
 }
 
@@ -182,4 +179,10 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "https://melee-one.vercel.app","http://62.72.3.148","https://www.melee.al","https://melee.al"]
+CORS_ALLOWED_ORIGINS = [
+    "https://www.melee.la",
+    "https://melee.la",
+    "http://localhost:3000",
+    "https://melee-one.vercel.app",
+    "http://62.72.3.148",
+]

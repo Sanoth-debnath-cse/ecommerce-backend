@@ -2,7 +2,7 @@ asgiref==3.7.2
 attrs==23.2.0
 black==24.2.0
 click==8.1.7
-Django==4.2.7
+Django==5.0.3
 django-autoslug==1.9.9
 django-cors-headers==4.3.1
 django-dirtyfields==1.9.2
@@ -10,15 +10,14 @@ django-phonenumber-field==7.3.0
 django-versatileimagefield==3.1
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
-drf-spectacular==0.26.2
+drf-spectacular==0.27.1
 inflection==0.5.1
 jsonschema==4.21.1
 jsonschema-specifications==2023.12.1
 mypy-extensions==1.0.0
-mysqlclient==2.2.4
-packaging==23.2
+packaging==24.0
 pathspec==0.12.1
-phonenumbers==8.13.31
+phonenumbers==8.13.32
 pillow==10.2.0
 platformdirs==4.2.0
 PyJWT==2.8.0
