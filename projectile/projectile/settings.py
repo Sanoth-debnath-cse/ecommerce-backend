@@ -34,7 +34,7 @@ SECRET_KEY = "django-insecure-8a()e!d$4_tul9$p7v-dg=5h!a7hedax7uu$0zv%t#$dh9qfaf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["https://www.melee.la", "https://melee.la"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "productio.apps.ProductioConfig",
     "mediaroomio.apps.MediaroomioConfig",
-    "corsheaders",
+    # "corsheaders",
     "orderio.apps.OrderioConfig",
     "django_extensions",
 ]
@@ -64,7 +64,7 @@ AUTH_USER_MODEL = "core.User"
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
+    # "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -180,10 +180,10 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CORS_ALLOWED_ORIGINS = [
-    "https://www.melee.la",
-    "https://melee.la",
-    "http://localhost:3000",
-    "https://melee-one.vercel.app",
-    "http://62.72.3.148",
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "https://www.melee.la",
+#     "https://melee.la",
+#     "http://localhost:3000",
+#     "https://melee-one.vercel.app",
+#     "http://62.72.3.148",
+# ]
