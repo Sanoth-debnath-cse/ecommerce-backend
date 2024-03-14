@@ -14,6 +14,7 @@ import os
 import sys
 from pathlib import Path
 from datetime import timedelta
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -73,6 +74,40 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "projectile.urls"
+
+ENABLE_CORS_HEADERS = True
+
+if ENABLE_CORS_HEADERS:
+    INSTALLED_APPS = [
+        "corsheaders",
+    ] + INSTALLED_APPS
+    MIDDLEWARE = [
+        "corsheaders.middleware.CorsMiddleware",
+    ] + MIDDLEWARE
+
+    CORS_ALLOW_CREDENTIALS = True
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",
+        "https://0c4crp42-8000.asse.devtunnels.ms",
+    ]
+    CSRF_TRUSTED_ORIGINS = [
+        "http://localhost:3000",
+        "https://0c4crp42-8000.asse.devtunnels.ms",
+    ]
+    CORS_ALLOW_HEADERS = (
+        *default_headers,
+        "accept",
+        "authorization",
+        "content-type",
+        "user-agent",
+        "x-csrftoken",
+        "x-requested-with",
+        "x-domain",
+    )
+    CORS_ALLOWED_ORIGIN_REGEXES = [
+        r"^http://\w+\.localhost:3000",
+    ]
+    CORS_ALLOW_ALL_ORIGINS = True
 
 TEMPLATES = [
     {
