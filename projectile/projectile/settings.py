@@ -21,10 +21,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 REPO_DIR = os.path.realpath(os.path.join(BASE_DIR, ".."))
 # The directory of the current user ie /home/django a.k.a. ~
 HOME_DIR = os.path.realpath(os.path.join(REPO_DIR, ".."))
+STATIC_DIR = os.path.realpath(os.path.join(HOME_DIR, "staticfiles"))
+
 MEDIA_DIR = os.path.realpath(os.path.join(HOME_DIR, "emedia"))
+
+STATIC_ROOT = STATIC_DIR
+STATIC_URL = "/static/"
 
 MEDIA_ROOT = MEDIA_DIR
 MEDIA_URL = "/emedia/"
+
+STATICFILES_DIRS = [os.path.join(REPO_DIR, "assets")]
+
+STATICFILES_FINDERS = (
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -208,17 +220,7 @@ SPECTACULAR_SETTINGS = {
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "static/"
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# CORS_ALLOWED_ORIGINS = [
-#     "https://www.melee.la",
-#     "https://melee.la",
-#     "http://localhost:3000",
-#     "https://melee-one.vercel.app",
-#     "http://62.72.3.148",
-# ]

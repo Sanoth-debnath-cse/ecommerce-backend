@@ -225,6 +225,20 @@ class PrivateProductDetailsSerializer(serializers.ModelSerializer):
     stock_size = PrivateProductStockSerializer(
         read_only=True, many=True, source="stock"
     )
+    primary_image = VersatileImageFieldSerializer(
+        allow_null=True,
+        allow_empty_file=True,
+        sizes=versatile_image_size,
+        write_only=True,
+        required=False,
+    )
+    secondary_image = VersatileImageFieldSerializer(
+        allow_null=True,
+        allow_empty_file=True,
+        sizes=versatile_image_size,
+        write_only=True,
+        required=False,
+    )
 
     class Meta:
         model = Product
@@ -245,6 +259,8 @@ class PrivateProductDetailsSerializer(serializers.ModelSerializer):
             "sizing",
             "care",
             "delivery_and_returns",
+            "primary_image",
+            "secondary_image",
         ]
         read_only_fields = ["uid", "created_at", "updated_at"]
 
@@ -252,6 +268,8 @@ class PrivateProductDetailsSerializer(serializers.ModelSerializer):
         instance.stock.clear()
 
         stock = validated_data.pop("stock", "")
+        primary_image = validated_data.pop("primary_image", None)
+        secondary_image = validated_data.pop("secondary_image", None)
 
         instance = super().update(instance, validated_data)
 
@@ -264,4 +282,23 @@ class PrivateProductDetailsSerializer(serializers.ModelSerializer):
             ProductStockConnector.objects.create(
                 stock=product_stock_data, product=instance
             )
+        if primary_image:
+            main_image = MediaRoom.objects.create(
+                image=primary_image, type=MediaKindChoices.PRIMARY_PRODUCT_IMAGE
+            )
+            MediaRoomConnector.objects.create(
+                media_room=main_image,
+                type=MediaKindChoices.PRIMARY_PRODUCT_IMAGE,
+                product=instance,
+            )
+        if secondary_image:
+            second_image = MediaRoom.objects.create(
+                image=secondary_image, type=MediaKindChoices.SECONDARY_PRODUCT_IMAGE
+            )
+            MediaRoomConnector.objects.create(
+                media_room=second_image,
+                type=MediaKindChoices.SECONDARY_PRODUCT_IMAGE,
+                product=instance,
+            )
+
         return instance
