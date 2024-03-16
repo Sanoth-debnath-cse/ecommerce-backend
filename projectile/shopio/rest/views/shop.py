@@ -1,8 +1,13 @@
-from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    RetrieveUpdateAPIView,
+    RetrieveAPIView,
+)
 from rest_framework.exceptions import NotFound
+from rest_framework.permissions import AllowAny
 
 from shopio.models import Shop
-from shopio.rest.serializers.shop import ShopSerializer
+from shopio.rest.serializers.shop import ShopSerializer, PublicShopSerializer
 
 from shared.permission import IsShopOwner
 
@@ -22,3 +27,11 @@ class ShopDetailsView(RetrieveUpdateAPIView):
             return Shop.objects.get(uid=shop_uid)
         except Shop.DoesNotExist:
             raise NotFound("Shop not found")
+
+
+class PublicShopView(RetrieveAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = PublicShopSerializer
+
+    def get_object(self):
+        return Shop.objects.filter().first()

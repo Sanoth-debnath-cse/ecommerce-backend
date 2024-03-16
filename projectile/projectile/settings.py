@@ -224,3 +224,6 @@ SPECTACULAR_SETTINGS = {
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+STRIPE_PUBLIC_KEY = "pk_test_51OuIewSCsmib4OrofS7pNAOshW9fNW6bSdFBANEN2pKWQCCvMyIh7slwrt987h75DJlw8QGQ15zSKXCoQIji2NNl00tanEJkaG"
+STRIPE_PRIVATE_KEY = "sk_test_51OuIewSCsmib4OrowSbl2Rc06oFwv5pqVVHQaPVZQpc3ck0YsKn2rHvfh03NcKAGc4WXPRq6jJMaYHtOrBDr8Xcv00vrDEb3Sn"

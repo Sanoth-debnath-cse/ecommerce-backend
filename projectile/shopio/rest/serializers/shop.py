@@ -34,3 +34,23 @@ class ShopSerializer(serializers.ModelSerializer):
         shop.owner.add(owner)
         shop.save()
         return shop
+
+
+class PublicShopSerializer(ShopSerializer):
+    class Meta:
+        model = Shop
+        fields = [
+            "uid",
+            "created_at",
+            "updated_at",
+            "name",
+            "description",
+            "terms_condition",
+            "privacy_policy",
+            "short_pitch",
+            "contact_number",
+            "contact_email",
+            "contact_website",
+            "other_website",
+        ]
+        read_only_fields = fields

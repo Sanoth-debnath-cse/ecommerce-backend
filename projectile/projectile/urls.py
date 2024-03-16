@@ -33,6 +33,7 @@ urlpatterns = [
     path("api/v1/me", include("core.rest.urls.me")),
     path("api/v1/products", include("productio.rest.urls")),
     path("api/v1/carts", include("productio.rest.urls.carts")),
+    path("api/v1/order", include("orderio.rest.urls.payments")),
 ]
 
 if settings.DEBUG:
