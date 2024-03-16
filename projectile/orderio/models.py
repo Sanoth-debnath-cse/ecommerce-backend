@@ -15,11 +15,15 @@ class Order(BaseModel):
     products = models.ManyToManyField(Product, through="orderio.OrderItems", blank=True)
     total_price = models.DecimalField(max_digits=8, decimal_places=4, default=0)
     status = models.CharField(
-        max_length=50, choices=OrderType.choices, default=OrderType.PROCESSING
+        max_length=50, choices=OrderType.choices, default=OrderType.PAYMENT_INCOMPLETE
     )
     is_ordered = models.BooleanField(default=False)
     is_paid = models.BooleanField(default=False)
     address = models.CharField(max_length=1000, blank=True)
+    user_cart_data = models.JSONField(default=dict)
+    order_shipping_charge = models.DecimalField(
+        max_digits=8, decimal_places=4, default=0
+    )
 
 
 class OrderItems(BaseModel):

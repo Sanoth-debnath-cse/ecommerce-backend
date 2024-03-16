@@ -1,12 +1,7 @@
 import json
 import stripe
 from django.conf import settings
-from django.http import HttpResponse
 
-from django.shortcuts import render, redirect, reverse
-
-# from django.urls import reverse
-from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound
@@ -15,7 +10,7 @@ from rest_framework.response import Response
 
 from orderio.models import Order, OrderItems
 from productio.models import Product
-from productio.rest.serializers.products import PublicProductsCartSerializer
+
 from shopio.models import Shop
 
 stripe.api_key = settings.STRIPE_PRIVATE_KEY
@@ -29,6 +24,9 @@ class CreateCheckoutSessionView(APIView):
         host = self.request.get_host()
 
         product_data = request.data
+
+        product_data_dict = product_data
+
         product_data = product_data.get("products", [])
 
         # shop data
@@ -41,7 +39,11 @@ class CreateCheckoutSessionView(APIView):
         total_price = 0
         line_items = []
         if len(product_data) > 0:
-            order = Order.objects.create(user=user)
+            order = Order.objects.create(
+                user=user,
+                order_shipping_charge=shipping_charges,
+                user_cart_data=product_data_dict,
+            )
 
             for product in product_data:
                 try:
@@ -96,7 +98,6 @@ class CreateCheckoutSessionView(APIView):
                     success_url="https://melee.la/payment/success",
                     cancel_url="https://melee.la/payment/cancel",
                 )
-                print(checkout_session, "<<<<<<<<<<<<<>>>>>>>>>>>>>>>>")
                 return Response(checkout_session.url)
             except Exception as e:
                 return Response({"error": str(e)}, status=500)
@@ -112,21 +113,25 @@ def my_webhook_view(request):
     event_type = payload["type"]
 
     if event_type == "checkout.session.completed":
-        # Extract necessary information from payload
         session = payload["data"]["object"]
         billing_address = session["customer_details"]["address"]
-        print(billing_address, "<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>.")
+        address_string = ", ".join(
+            f"{key}: {value}"
+            for key, value in billing_address.items()
+            if value is not None
+        )
 
         order_id = session["client_reference_id"]
-        print(order_id, "<<<<<<<<<<<<<<<<<,>>>>>>>>>>>>>>>>>>")
 
-        # Assuming you have a way to identify the order related to this session
-        # order_id = session["client_reference_id"]
-        # order = Order.objects.get(id=order_id)
+        try:
+            order_obj = Order.objects.get(id=order_id)
+            order_obj.is_ordered = True
+            order_obj.is_paid = True
+            order_obj.address = address_string
 
-        # # Update your order model
-        # order.is_order = True
-        # if billing_address:
-        #     order.billing_address = billing_address
-        # order.save()
+            order_obj.save()
+
+        except Order.DoesNotExist:
+            pass
+
     return HttpResponse(status=200)
