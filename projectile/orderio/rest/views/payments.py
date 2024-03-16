@@ -9,6 +9,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from orderio.models import Order, OrderItems
+from orderio.choices import OrderType
 from productio.models import Product
 
 from shopio.models import Shop
@@ -128,6 +129,7 @@ def my_webhook_view(request):
             order_obj.is_ordered = True
             order_obj.is_paid = True
             order_obj.address = address_string
+            order_obj.status = OrderType.ORDER_PLACED
 
             order_obj.save()
 

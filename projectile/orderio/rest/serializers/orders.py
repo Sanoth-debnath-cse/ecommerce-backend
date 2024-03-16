@@ -2,11 +2,8 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
-from productio.models import Product, ProductStockConnector
-from productio.rest.serializers.products import PublicProductsCartSerializer
-
+from productio.models import Product
 from orderio.models import Order, OrderItems
-from orderio.choices import OrderType
 
 from mediaroomio.models import MediaRoomConnector
 from mediaroomio.choices import MediaKindChoices
@@ -73,9 +70,12 @@ class PublicOrderListSerializer(serializers.ModelSerializer):
             "uid",
             "created_at",
             "updated_at",
+            "order_id",
             "status",
+            "address",
             "total_price",
             "user_cart_data",
+            "order_shipping_charge",
         ]
         read_only_fields = fields
 
@@ -98,5 +98,7 @@ class PublicOrderDetailSerializer(PublicOrderListSerializer):
     def get_products(self, obj):
         order_items = (
             obj.orderitems_set.all()
-        )  # Assuming 'orderitems_set' is the related name
-        return PublicOrderItemsListSerializer(order_items, many=True).data
+        )  # Assuming 'order items_set' is the related name
+        return PublicOrderItemsListSerializer(
+            order_items, context=self.context, many=True
+        ).data
