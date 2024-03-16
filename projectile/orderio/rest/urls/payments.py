@@ -1,14 +1,9 @@
 from django.urls import path
 
-from orderio.rest.views.payments import (
-    CreateCheckoutSessionView,
-    payment_success,
-    payment_cancel,
-)
+from orderio.rest.views.payments import CreateCheckoutSessionView, my_webhook_view
 
 urlpatterns = [
-    path("/payment-cancel", payment_cancel, name="payment-cancel"),
-    path("/payment-success", payment_success, name="payment-success"),
+    path("/webhook/stripe", my_webhook_view, name="webhook-stripe"),
     path(
         "/checkout", CreateCheckoutSessionView.as_view(), name="create-checkout-session"
     ),

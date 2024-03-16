@@ -1,10 +1,13 @@
+import json
 import stripe
 from django.conf import settings
+from django.http import HttpResponse
 
 from django.shortcuts import render, redirect, reverse
 
 # from django.urls import reverse
 from django.views import generic
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import AllowAny
@@ -71,6 +74,7 @@ class CreateCheckoutSessionView(APIView):
 
             try:
                 checkout_session = stripe.checkout.Session.create(
+                    client_reference_id=order.id,
                     shipping_address_collection={
                         # "allowed_countries": ["USA", "CA"],
                     },
@@ -97,11 +101,30 @@ class CreateCheckoutSessionView(APIView):
                 return Response({"error": str(e)}, status=500)
 
 
-def payment_success(request):
-    context = {"payment_success": "success"}
-    return render(request, "success.html", context)
+# Using Django
+from django.http import HttpResponse
 
 
-def payment_cancel(request):
-    context = {"payment_cancel": "cancel"}
-    return render(request, "cancel.html", context)
+@csrf_exempt
+def my_webhook_view(request):
+    payload = json.loads(request.body.decode("utf-8"))
+    event_type = payload["type"]
+
+    if event_type == "checkout.session.completed":
+        # Extract necessary information from payload
+        session = payload["data"]["object"]
+        billing_address = session["customer_details"]["address"]
+
+        order_id = session["client_reference_id"]
+        print(order_id, "<<<<<<<<<<<<<<<<<,>>>>>>>>>>>>>>>>>>")
+
+        # Assuming you have a way to identify the order related to this session
+        # order_id = session["client_reference_id"]
+        # order = Order.objects.get(id=order_id)
+
+        # # Update your order model
+        # order.is_order = True
+        # if billing_address:
+        #     order.billing_address = billing_address
+        # order.save()
+    return HttpResponse(status=200)
