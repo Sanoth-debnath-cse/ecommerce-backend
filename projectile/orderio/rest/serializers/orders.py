@@ -69,7 +69,14 @@ class PublicOrderItemsListSerializer(serializers.ModelSerializer):
 class PublicOrderListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ["uid", "created_at", "updated_at", "status", "total_price"]
+        fields = [
+            "uid",
+            "created_at",
+            "updated_at",
+            "status",
+            "total_price",
+            "user_cart_data",
+        ]
         read_only_fields = fields
 
 
