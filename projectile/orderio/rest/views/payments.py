@@ -93,9 +93,10 @@ class CreateCheckoutSessionView(APIView):
                     payment_method_types=["card"],
                     line_items=line_items,
                     mode="payment",
-                    success_url=f"http://dev.{host}/payment/success",
-                    cancel_url=f"http://dev.{host}/payment/cancel",
+                    success_url="https://melee.la/payment/success",
+                    cancel_url="https://melee.la/payment/cancel",
                 )
+                print(checkout_session, "<<<<<<<<<<<<<>>>>>>>>>>>>>>>>")
                 return Response(checkout_session.url)
             except Exception as e:
                 return Response({"error": str(e)}, status=500)
@@ -114,6 +115,7 @@ def my_webhook_view(request):
         # Extract necessary information from payload
         session = payload["data"]["object"]
         billing_address = session["customer_details"]["address"]
+        print(billing_address, "<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>.")
 
         order_id = session["client_reference_id"]
         print(order_id, "<<<<<<<<<<<<<<<<<,>>>>>>>>>>>>>>>>>>")
