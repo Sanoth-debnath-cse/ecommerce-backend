@@ -3,6 +3,7 @@ from django.db import models
 
 from productio.models import Product
 from shared.base_model import BaseModel
+from shared.utils import generate_order_id
 
 from .choices import OrderType
 
@@ -24,6 +25,10 @@ class Order(BaseModel):
     order_shipping_charge = models.DecimalField(
         max_digits=8, decimal_places=4, default=0
     )
+
+    def save(self, *args, **kwargs):
+        self.order_id = generate_order_id(self)
+        super().save(*args, **kwargs)
 
 
 class OrderItems(BaseModel):

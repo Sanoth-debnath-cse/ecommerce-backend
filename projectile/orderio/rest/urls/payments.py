@@ -4,7 +4,5 @@ from orderio.rest.views.payments import CreateCheckoutSessionView, my_webhook_vi
 
 urlpatterns = [
     path("/webhook/stripe", my_webhook_view, name="webhook-stripe"),
-    path(
-        "/checkout", CreateCheckoutSessionView.as_view(), name="create-checkout-session"
-    ),
+    path("", CreateCheckoutSessionView.as_view(), name="create-checkout-session"),
 ]

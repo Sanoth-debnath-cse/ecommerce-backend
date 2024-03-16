@@ -15,9 +15,24 @@ from mediaroomio.rest.serializers.mediaroom import PublicMediaRoomSerializer
 User = get_user_model()
 
 
+class PublicUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "uid",
+            "slug",
+            "created_at",
+            "updated_at",
+            "first_name",
+            "last_name",
+            "phone",
+            "email",
+        ]
+        read_only_fields = fields
+
+
 class PublicOrderProductListSerializer(serializers.ModelSerializer):
     primary_image = serializers.SerializerMethodField()
-    # secondary_image = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -29,7 +44,6 @@ class PublicOrderProductListSerializer(serializers.ModelSerializer):
             "name",
             "unit_price",
             "primary_image",
-            # "secondary_image",
         ]
 
     def get_primary_image(self, obj):
@@ -42,25 +56,40 @@ class PublicOrderProductListSerializer(serializers.ModelSerializer):
             ).data
         return None
 
-    # def get_secondary_image(self, obj):
-    #     secondary_obj = MediaRoomConnector.objects.filter(
-    #         product=obj, type=MediaKindChoices.SECONDARY_PRODUCT_IMAGE
-    #     ).first()
-    #     if secondary_obj:
-    #         return PublicMediaRoomSerializer(
-    #             secondary_obj.media_room, context=self.context
-    #         ).data
-    #     return None
+
+class PublicOrderItemsListSerializer(serializers.ModelSerializer):
+    product = PublicOrderProductListSerializer(read_only=True)
+
+    class Meta:
+        model = OrderItems
+        fields = ["uid", "created_at", "updated_at", "product", "quantity", "size"]
+        read_only_fields = fields
 
 
-class PrivateOrderSerializer(serializers.ModelSerializer):
-    items = PublicProductsCartSerializer(many=True, read_only=True)
-    products = PublicOrderProductListSerializer(many=True, read_only=True)
+class PublicOrderListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ["uid", "created_at", "updated_at", "status", "total_price"]
+        read_only_fields = fields
+
+
+class PublicOrderDetailSerializer(PublicOrderListSerializer):
+    user = PublicUserSerializer(read_only=True)
+    products = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = [
-            "uid",
-            "created_at",
-            "updated_at",
+        fields = PublicOrderListSerializer.Meta.fields + [
+            "user",
+            "address",
+            "order_shipping_charge",
+            "user_cart_data",
+            "products",
         ]
+        read_only_fields = fields
+
+    def get_products(self, obj):
+        order_items = (
+            obj.orderitems_set.all()
+        )  # Assuming 'orderitems_set' is the related name
+        return PublicOrderItemsListSerializer(order_items, many=True).data
