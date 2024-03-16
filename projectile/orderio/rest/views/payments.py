@@ -93,8 +93,8 @@ class CreateCheckoutSessionView(APIView):
                     payment_method_types=["card"],
                     line_items=line_items,
                     mode="payment",
-                    success_url=f"http://{host}/payment/success",
-                    cancel_url=f"http://{host}/payment/cancel",
+                    success_url=f"http://dev.{host}/payment/success",
+                    cancel_url=f"http://dev.{host}/payment/cancel",
                 )
                 return Response(checkout_session.url)
             except Exception as e:
