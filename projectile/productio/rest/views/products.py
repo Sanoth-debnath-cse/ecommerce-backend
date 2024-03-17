@@ -25,7 +25,7 @@ class PublicProductsListView(ListAPIView):
     serializer_class = PublicProductListSerializer
 
     def get_queryset(self):
-        return Product.objects.filter(is_published=True)
+        return Product.objects.filter(is_published=True).order_by("-created_at")
 
 
 class PublicProductsDetailsView(RetrieveAPIView):
