@@ -11,5 +11,7 @@ class PrivateDashboardSerializer(serializers.Serializer):
     total_products = serializers.IntegerField(read_only=True, default=0)
     total_published = serializers.IntegerField(read_only=True, default=0)
     total_unpublished = serializers.IntegerField(read_only=True, default=0)
-    total_payment = serializers.IntegerField(read_only=True, default=0)
+    total_payment = serializers.DecimalField(
+        max_digits=8, decimal_places=4, read_only=True, default=0
+    )
     total_customer = serializers.IntegerField(read_only=True, default=0)

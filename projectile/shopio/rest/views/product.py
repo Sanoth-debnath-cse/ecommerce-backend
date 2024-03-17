@@ -1,3 +1,4 @@
+from django.db.models import Count, Sum
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
@@ -24,7 +25,10 @@ class PrivateProductListView(ListCreateAPIView):
 
     def get_queryset(self):
         return (
-            Product.objects.select_related("category").filter().order_by("-created_at")
+            Product.objects.select_related("category")
+            .annotate(total_sold_items=Count("orderitems__id", distinct=True))
+            .annotate(total_amount=Sum("orderitems__total_product_price"))
+            .order_by("-created_at")
         )
 
 

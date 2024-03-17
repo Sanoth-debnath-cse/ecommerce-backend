@@ -99,7 +99,9 @@ class PrivateProductListSerializer(serializers.ModelSerializer):
     primary_image_view = serializers.SerializerMethodField()
     is_stock = serializers.SerializerMethodField()
     total_sold_items = serializers.IntegerField(read_only=True, default=0)
-    total_amount = serializers.IntegerField(read_only=True, default=0)
+    total_amount = serializers.DecimalField(
+        max_digits=8, decimal_places=4, read_only=True, default=0
+    )
     # images = PublicMediaRoomSerializer(read_only=True, many=True)
 
     class Meta:

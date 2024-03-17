@@ -36,3 +36,4 @@ class OrderItems(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=0, blank=True)
     size = models.CharField(max_length=100, blank=True)
+    total_product_price = models.DecimalField(max_digits=8, decimal_places=4, default=0)

@@ -41,7 +41,7 @@ class CreateCheckoutSessionView(APIView):
         total_price = 0
         line_items = []
         if len(product_data) > 0:
-            if not is_first_time_ordered:
+            if is_first_time_ordered == "false":
                 try:
                     order = Order.objects.get(uid=order_uid)
                 except Order.DoesNotExist:
@@ -67,6 +67,8 @@ class CreateCheckoutSessionView(APIView):
                     product=product_obj,
                     size=product.get("size", ""),
                     quantity=product.get("selected_stock", 0),
+                    total_product_price=product.get("selected_stock", 0)
+                    * product_obj.unit_price,
                 )
                 total_price += product.get("selected_stock", 0) * product_obj.unit_price
 
