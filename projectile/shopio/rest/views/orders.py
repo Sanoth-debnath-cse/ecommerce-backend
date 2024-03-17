@@ -15,7 +15,11 @@ class PrivateOrderListView(ListAPIView):
     permission_classes = [IsShopOwner]
 
     def get_queryset(self):
-        return Order.objects.filter().order_by("-created_at")
+        return (
+            Order.objects.prefetch_related("orderitems_set")
+            .filter()
+            .order_by("-created_at")
+        )
 
 
 class PrivateOrderDetailView(RetrieveUpdateDestroyAPIView):
@@ -26,6 +30,6 @@ class PrivateOrderDetailView(RetrieveUpdateDestroyAPIView):
         order_uid = self.kwargs.get("order_uid")
 
         try:
-            return Order.objects.get(uid=order_uid)
+            return Order.objects.prefetch_related("orderitems_set").get(uid=order_uid)
         except Order.DoesNotExist:
             raise NotFound(detail="Oder does not exist")

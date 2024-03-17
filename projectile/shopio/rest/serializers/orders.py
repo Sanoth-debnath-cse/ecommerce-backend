@@ -10,7 +10,7 @@ from orderio.rest.serializers.orders import (
 class PrivateOrderListSerializer(PublicOrderListSerializer):
     class Meta:
         model = Order
-        fields = PublicOrderListSerializer.Meta.fields + ["is_ordered", "is_paid"]
+        fields = PublicOrderListSerializer.Meta.fields
         read_only_fields = fields.copy()
         read_only_fields.remove("status")
 

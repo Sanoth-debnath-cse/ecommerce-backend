@@ -64,6 +64,9 @@ class PublicOrderItemsListSerializer(serializers.ModelSerializer):
 
 
 class PublicOrderListSerializer(serializers.ModelSerializer):
+    user = PublicUserSerializer(read_only=True)
+    products = serializers.SerializerMethodField()
+
     class Meta:
         model = Order
         fields = [
@@ -71,27 +74,15 @@ class PublicOrderListSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "order_id",
+            "user",
+            "products",
             "status",
-            "address",
             "total_price",
             "user_cart_data",
             "order_shipping_charge",
-        ]
-        read_only_fields = fields
-
-
-class PublicOrderDetailSerializer(PublicOrderListSerializer):
-    user = PublicUserSerializer(read_only=True)
-    products = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Order
-        fields = PublicOrderListSerializer.Meta.fields + [
-            "user",
             "address",
-            "order_shipping_charge",
-            "user_cart_data",
-            "products",
+            "is_paid",
+            "is_ordered",
         ]
         read_only_fields = fields
 
@@ -102,3 +93,11 @@ class PublicOrderDetailSerializer(PublicOrderListSerializer):
         return PublicOrderItemsListSerializer(
             order_items, context=self.context, many=True
         ).data
+
+
+class PublicOrderDetailSerializer(PublicOrderListSerializer):
+
+    class Meta:
+        model = Order
+        fields = PublicOrderListSerializer.Meta.fields
+        read_only_fields = fields

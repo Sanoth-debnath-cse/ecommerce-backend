@@ -16,7 +16,11 @@ class PublicOrderListView(ListAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        return Order.objects.filter(user=user).order_by("-created_at")
+        return (
+            Order.objects.prefetch_related("orderitems_set")
+            .filter(user=user)
+            .order_by("-created_at")
+        )
 
 
 class PublicOrderDetailView(RetrieveAPIView):
@@ -28,6 +32,8 @@ class PublicOrderDetailView(RetrieveAPIView):
         order_uid = self.kwargs.get("order_uid")
 
         try:
-            return Order.objects.get(user=user, uid=order_uid)
+            return Order.objects.prefetch_related("orderitems_set").get(
+                user=user, uid=order_uid
+            )
         except Order.DoesNotExist:
             raise NotFound(detail="Order not found")
