@@ -25,7 +25,8 @@ class CreateCheckoutSessionView(APIView):
         host = self.request.get_host()
 
         product_data = request.data
-
+        order_uid = product_data.pop("order_uid", None)
+        is_first_time_ordered = product_data.pop("is_first_time_ordered", False)
         product_data_dict = product_data
 
         product_data = product_data.get("products", [])
@@ -40,11 +41,21 @@ class CreateCheckoutSessionView(APIView):
         total_price = 0
         line_items = []
         if len(product_data) > 0:
-            order = Order.objects.create(
-                user=user,
-                order_shipping_charge=shipping_charges,
-                user_cart_data=product_data_dict,
-            )
+            if not is_first_time_ordered:
+                try:
+                    order = Order.objects.get(uid=order_uid)
+                except Order.DoesNotExist:
+                    order = Order.objects.create(
+                        user=user,
+                        order_shipping_charge=shipping_charges,
+                        user_cart_data=product_data_dict,
+                    )
+            else:
+                order = Order.objects.create(
+                    user=user,
+                    order_shipping_charge=shipping_charges,
+                    user_cart_data=product_data_dict,
+                )
 
             for product in product_data:
                 try:
