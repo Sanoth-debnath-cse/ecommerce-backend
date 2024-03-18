@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 from orderio.models import Order, OrderItems
 from orderio.choices import OrderType
-from productio.models import Product
+from productio.models import Product, ProductStock, ProductStockConnector
 
 from shopio.models import Shop
 
@@ -41,15 +41,66 @@ class CreateCheckoutSessionView(APIView):
         total_price = 0
         line_items = []
         if len(product_data) > 0:
-            if is_first_time_ordered == "false":
+            if not is_first_time_ordered:
                 try:
                     order = Order.objects.get(uid=order_uid)
+                    for product in product_data:
+                        try:
+                            product_obj = Product.objects.get(uid=product.get("uid"))
+                        except Product.DoesNotExist:
+                            continue
+
+                        checkout_item = {
+                            "price_data": {
+                                "currency": "usd",
+                                "product_data": {
+                                    "name": product_obj.name,
+                                    "images": [product.get("primary_image", None)],
+                                },
+                                "unit_amount": int(product_obj.unit_price * 100),
+                            },
+                            "quantity": product.get("selected_stock", 0),
+                        }
+                        line_items.append(checkout_item)
+
                 except Order.DoesNotExist:
                     order = Order.objects.create(
                         user=user,
                         order_shipping_charge=shipping_charges,
                         user_cart_data=product_data_dict,
                     )
+                    for product in product_data:
+                        try:
+                            product_obj = Product.objects.get(uid=product.get("uid"))
+                        except Product.DoesNotExist:
+                            continue
+                        OrderItems.objects.create(
+                            order=order,
+                            product=product_obj,
+                            size=product.get("size", ""),
+                            quantity=product.get("selected_stock", 0),
+                            total_product_price=product.get("selected_stock", 0)
+                            * product_obj.unit_price,
+                        )
+                        total_price += (
+                            product.get("selected_stock", 0) * product_obj.unit_price
+                        )
+
+                        checkout_item = {
+                            "price_data": {
+                                "currency": "usd",
+                                "product_data": {
+                                    "name": product_obj.name,
+                                    "images": [product.get("primary_image", None)],
+                                },
+                                "unit_amount": int(product_obj.unit_price * 100),
+                            },
+                            "quantity": product.get("selected_stock", 0),
+                        }
+                        line_items.append(checkout_item)
+
+                    order.total_price = total_price
+                    order.save()
             else:
                 order = Order.objects.create(
                     user=user,
@@ -57,36 +108,38 @@ class CreateCheckoutSessionView(APIView):
                     user_cart_data=product_data_dict,
                 )
 
-            for product in product_data:
-                try:
-                    product_obj = Product.objects.get(uid=product.get("uid"))
-                except Product.DoesNotExist:
-                    continue
-                OrderItems.objects.create(
-                    order=order,
-                    product=product_obj,
-                    size=product.get("size", ""),
-                    quantity=product.get("selected_stock", 0),
-                    total_product_price=product.get("selected_stock", 0)
-                    * product_obj.unit_price,
-                )
-                total_price += product.get("selected_stock", 0) * product_obj.unit_price
+                for product in product_data:
+                    try:
+                        product_obj = Product.objects.get(uid=product.get("uid"))
+                    except Product.DoesNotExist:
+                        continue
+                    OrderItems.objects.create(
+                        order=order,
+                        product=product_obj,
+                        size=product.get("size", ""),
+                        quantity=product.get("selected_stock", 0),
+                        total_product_price=product.get("selected_stock", 0)
+                        * product_obj.unit_price,
+                    )
+                    total_price += (
+                        product.get("selected_stock", 0) * product_obj.unit_price
+                    )
 
-                checkout_item = {
-                    "price_data": {
-                        "currency": "usd",
-                        "product_data": {
-                            "name": product_obj.name,
-                            "images": [product.get("primary_image", None)],
+                    checkout_item = {
+                        "price_data": {
+                            "currency": "usd",
+                            "product_data": {
+                                "name": product_obj.name,
+                                "images": [product.get("primary_image", None)],
+                            },
+                            "unit_amount": int(product_obj.unit_price * 100),
                         },
-                        "unit_amount": int(product_obj.unit_price * 100),
-                    },
-                    "quantity": product.get("selected_stock", 0),
-                }
-                line_items.append(checkout_item)
+                        "quantity": product.get("selected_stock", 0),
+                    }
+                    line_items.append(checkout_item)
 
-            order.total_price = total_price
-            order.save()
+                order.total_price = total_price
+                order.save()
 
             try:
                 checkout_session = stripe.checkout.Session.create(
@@ -145,6 +198,25 @@ def my_webhook_view(request):
             order_obj.status = OrderType.ORDER_PLACED
 
             order_obj.save()
+
+            # manage stock
+            order_items = OrderItems.objects.filter(order=order_obj)
+            for order_item in order_items:
+                try:
+                    product_stock = ProductStockConnector.objects.get(
+                        product=order_item.product
+                    )
+                    try:
+                        stock_obj = ProductStock.objects.get(
+                            uid=product_stock.stock.uid, size=order_item.size
+                        )
+                        stock_obj.stock = max(stock_obj.stock - order_item.quantity, 0)
+                        stock_obj.save()
+                    except ProductStock.DoesNotExist:
+                        continue
+
+                except ProductStockConnector.DoesNotExist:
+                    continue
 
         except Order.DoesNotExist:
             pass
