@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     # "corsheaders",
     "orderio.apps.OrderioConfig",
     "django_extensions",
+    "dropio.apps.DropioConfig",
 ]
 
 # set base auth user model

@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 
 from phonenumber_field.modelfields import PhoneNumberField
 
+from dropio.models import Drop
+
 from shared.base_model import BaseModel
 
 User = get_user_model()
@@ -20,6 +22,13 @@ class Shop(BaseModel):
     contact_website = models.URLField(null=True, blank=True)
     other_website = models.URLField(null=True, blank=True)
     shipping_charges = models.DecimalField(default=0, max_digits=8, decimal_places=4)
+    active_drop = models.OneToOneField(
+        "dropio.Drop",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="active_shop_drop",
+    )
 
 
 class Addresses(BaseModel):
