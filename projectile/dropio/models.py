@@ -8,10 +8,10 @@ User = get_user_model()
 
 
 class Drop(BaseModel):
-    drop_data = models.DateField(blank=True, null=True)
+    drop_date = models.DateField(blank=True, null=True)
     drop_time = models.TimeField(blank=True, null=True)
     name = models.CharField(max_length=255, blank=True)
-    drop_start_data = models.DateField(blank=True, null=True)
+    drop_start_date = models.DateField(blank=True, null=True)
     drop_end_time = models.TimeField(blank=True, null=True)
     shop = models.ForeignKey("shopio.Shop", on_delete=models.CASCADE)
     user = models.ManyToManyField(

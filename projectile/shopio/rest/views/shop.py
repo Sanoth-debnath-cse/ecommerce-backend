@@ -7,18 +7,22 @@ from rest_framework.exceptions import NotFound
 from rest_framework.permissions import AllowAny
 
 from shopio.models import Shop
-from shopio.rest.serializers.shop import ShopSerializer, PublicShopSerializer
+from shopio.rest.serializers.shop import (
+    ShopCreateSerializer,
+    PublicShopSerializer,
+    ShopDetailsSerializer,
+)
 
 from shared.permission import IsShopOwner
 
 
 class ShopView(CreateAPIView):
-    serializer_class = ShopSerializer
+    serializer_class = ShopCreateSerializer
     permission_classes = [IsShopOwner]
 
 
 class ShopDetailsView(RetrieveUpdateAPIView):
-    serializer_class = ShopSerializer
+    serializer_class = ShopDetailsSerializer
     permission_classes = [IsShopOwner]
 
     def get_object(self):
