@@ -1,8 +1,9 @@
 import json
 import stripe
-from django.conf import settings
 
+from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
+
 from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import AllowAny
@@ -192,20 +193,14 @@ def my_webhook_view(request):
 
         try:
             order_obj = Order.objects.get(id=order_id)
-            order_obj.is_ordered = True
-            order_obj.is_paid = True
-            order_obj.address = address_string
-            order_obj.status = OrderType.ORDER_PLACED
-
-            order_obj.save()
 
             # manage stock
             order_items = OrderItems.objects.filter(order=order_obj)
             for order_item in order_items:
-                try:
-                    product_stock = ProductStockConnector.objects.get(
-                        product=order_item.product
-                    )
+                product_stock = ProductStockConnector.objects.filter(
+                    product=order_item.product, stock__size=order_item.size
+                ).first()
+                if product_stock:
                     try:
                         stock_obj = ProductStock.objects.get(
                             uid=product_stock.stock.uid, size=order_item.size
@@ -214,9 +209,15 @@ def my_webhook_view(request):
                         stock_obj.save()
                     except ProductStock.DoesNotExist:
                         continue
-
-                except ProductStockConnector.DoesNotExist:
+                else:
                     continue
+
+            order_obj.is_ordered = True
+            order_obj.is_paid = True
+            order_obj.address = address_string
+            order_obj.status = OrderType.ORDER_PLACED
+
+            order_obj.save()
 
         except Order.DoesNotExist:
             pass
