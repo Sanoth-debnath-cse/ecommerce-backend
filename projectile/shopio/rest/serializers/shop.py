@@ -42,10 +42,22 @@ class ShopCreateSerializer(serializers.ModelSerializer):
 class ShopDetailsSerializer(ShopCreateSerializer):
     drop_date = serializers.DateField(required=False, write_only=True, allow_null=True)
     drop_time = serializers.TimeField(required=False, write_only=True, allow_null=True)
+    drop_expire_date = serializers.DateField(
+        required=False, write_only=True, allow_null=True
+    )
+    drop_expire_time = serializers.TimeField(
+        required=False, write_only=True, allow_null=True
+    )
     drop_date_value = serializers.DateField(
         read_only=True, source="active_drop.drop_date"
     )
     drop_time_value = serializers.TimeField(
+        read_only=True, source="active_drop.drop_time"
+    )
+    drop_expire_date_value = serializers.DateField(
+        read_only=True, source="active_drop.drop_date"
+    )
+    drop_expire_time_value = serializers.TimeField(
         read_only=True, source="active_drop.drop_time"
     )
 
@@ -54,8 +66,12 @@ class ShopDetailsSerializer(ShopCreateSerializer):
         fields = ShopCreateSerializer.Meta.fields + [
             "drop_date",
             "drop_time",
+            "drop_expire_date",
+            "drop_expire_time",
             "drop_date_value",
             "drop_time_value",
+            "drop_expire_date_value",
+            "drop_expire_time_value",
         ]
         read_only_fields = [
             "uid",
@@ -66,11 +82,19 @@ class ShopDetailsSerializer(ShopCreateSerializer):
     def update(self, instance, validated_data):
         drop_date = validated_data.pop("drop_date", None)
         drop_time = validated_data.pop("drop_time", None)
+        drop_expire_date = validated_data.pop("drop_expire_date", None)
+        drop_expire_time = validated_data.pop("drop_expire_time", None)
 
         instance = super().update(instance, validated_data)
 
         if drop_date and drop_time:
-            Drop.objects.create(drop_date=drop_date, drop_time=drop_time, shop=instance)
+            Drop.objects.create(
+                drop_date=drop_date,
+                drop_time=drop_time,
+                shop=instance,
+                drop_expire_date=drop_expire_date,
+                drop_expire_time=drop_expire_time,
+            )
 
         return instance
 

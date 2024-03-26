@@ -34,6 +34,7 @@ urlpatterns = [
     path("api/v1/products", include("productio.rest.urls")),
     path("api/v1/carts", include("productio.rest.urls.carts")),
     path("api/v1/order", include("orderio.rest.urls")),
+    path("api/v1/drops", include("dropio.rest.urls")),
 ]
 
 if settings.DEBUG:
