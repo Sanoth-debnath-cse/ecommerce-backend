@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 from datetime import timedelta
 from corsheaders.defaults import default_headers
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -48,7 +49,8 @@ SECRET_KEY = "django-insecure-8a()e!d$4_tul9$p7v-dg=5h!a7hedax7uu$0zv%t#$dh9qfaf
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
+env = environ.Env()
+environ.Env.read_env()
 
 # Application definition
 
@@ -226,12 +228,10 @@ SPECTACULAR_SETTINGS = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-STRIPE_PUBLIC_KEY = "pk_test_51OuIewSCsmib4OrofS7pNAOshW9fNW6bSdFBANEN2pKWQCCvMyIh7slwrt987h75DJlw8QGQ15zSKXCoQIji2NNl00tanEJkaG"
-STRIPE_PRIVATE_KEY = "sk_test_51OuIewSCsmib4OrowSbl2Rc06oFwv5pqVVHQaPVZQpc3ck0YsKn2rHvfh03NcKAGc4WXPRq6jJMaYHtOrBDr8Xcv00vrDEb3Sn"
-STRIPE_WEBHOOK_SECRET = (
-    "whsec_bfa983f37e1930f10eb0d7a115cb1ff660242a14a1446052be1ce36fea92db0d"
-)
+STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY")
+STRIPE_PRIVATE_KEY = env("STRIPE_PRIVATE_KEY")
+STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET")
 
-TWILIO_MY_ACCOUNT_SID = "AC4286e8fe4e7b1498f68a5da605cdfea6"
-TWILIO_AUTH_TOKEN = "ceaaeb70ea0238b5c1dcff1ec245a913"
-MY_TWILIO_NUMBER = "+13232104993"
+TWILIO_MY_ACCOUNT_SID = env("TWILIO_MY_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = env("TWILIO_AUTH_TOKEN")
+MY_TWILIO_NUMBER = env("MY_TWILIO_NUMBER")
