@@ -24,7 +24,7 @@ class DropUserCreateSerializer(serializers.Serializer):
 
         if drop_phone:
             drop_phone = str(drop_phone)
-            a = client.messages.create(
+            client.messages.create(
                 to=drop_phone, from_=settings.MY_TWILIO_NUMBER, body=message
             )
 

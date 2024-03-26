@@ -26,6 +26,7 @@ class Drop(BaseModel):
     drop_user = models.ManyToManyField(
         to=DropUser, through="dropio.DropUserConnector", blank=True
     )
+    is_drop_stop = models.BooleanField(default=False)
 
 
 class DropUserConnector(BaseModel):

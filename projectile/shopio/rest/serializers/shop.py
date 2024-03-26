@@ -42,36 +42,44 @@ class ShopCreateSerializer(serializers.ModelSerializer):
 class ShopDetailsSerializer(ShopCreateSerializer):
     drop_date = serializers.DateField(required=False, write_only=True, allow_null=True)
     drop_time = serializers.TimeField(required=False, write_only=True, allow_null=True)
-    drop_expire_date = serializers.DateField(
-        required=False, write_only=True, allow_null=True
-    )
-    drop_expire_time = serializers.TimeField(
-        required=False, write_only=True, allow_null=True
-    )
+    # drop_expire_date = serializers.DateField(
+    #     required=False, write_only=True, allow_null=True
+    # )
+    # drop_expire_time = serializers.TimeField(
+    #     required=False, write_only=True, allow_null=True
+    # )
     drop_date_value = serializers.DateField(
         read_only=True, source="active_drop.drop_date"
     )
     drop_time_value = serializers.TimeField(
         read_only=True, source="active_drop.drop_time"
     )
-    drop_expire_date_value = serializers.DateField(
-        read_only=True, source="active_drop.drop_date"
+    is_drop_stop = serializers.BooleanField(
+        write_only=True, required=False, default=False
     )
-    drop_expire_time_value = serializers.TimeField(
-        read_only=True, source="active_drop.drop_time"
+    is_drop_stop_value = serializers.BooleanField(
+        read_only=True, source="active_drop.is_drop_stop"
     )
+    # drop_expire_date_value = serializers.DateField(
+    #     read_only=True, source="active_drop.drop_date"
+    # )
+    # drop_expire_time_value = serializers.TimeField(
+    #     read_only=True, source="active_drop.drop_time"
+    # )
 
     class Meta:
         model = Shop
         fields = ShopCreateSerializer.Meta.fields + [
             "drop_date",
             "drop_time",
-            "drop_expire_date",
-            "drop_expire_time",
             "drop_date_value",
             "drop_time_value",
-            "drop_expire_date_value",
-            "drop_expire_time_value",
+            "is_drop_stop",
+            "is_drop_stop_value",
+            # "drop_expire_date",
+            # "drop_expire_time",
+            # "drop_expire_date_value",
+            # "drop_expire_time_value",
         ]
         read_only_fields = [
             "uid",
@@ -82,19 +90,32 @@ class ShopDetailsSerializer(ShopCreateSerializer):
     def update(self, instance, validated_data):
         drop_date = validated_data.pop("drop_date", None)
         drop_time = validated_data.pop("drop_time", None)
-        drop_expire_date = validated_data.pop("drop_expire_date", None)
-        drop_expire_time = validated_data.pop("drop_expire_time", None)
+        is_drop_stop = validated_data.pop("is_drop_stop", False)
+        # drop_expire_date = validated_data.pop("drop_expire_date", None)
+        # drop_expire_time = validated_data.pop("drop_expire_time", None)
 
         instance = super().update(instance, validated_data)
 
-        if drop_date and drop_time:
+        if drop_date and drop_time and not is_drop_stop:
             Drop.objects.create(
                 drop_date=drop_date,
                 drop_time=drop_time,
                 shop=instance,
-                drop_expire_date=drop_expire_date,
-                drop_expire_time=drop_expire_time,
+                # drop_expire_date=drop_expire_date,
+                # drop_expire_time=drop_expire_time,
             )
+        elif is_drop_stop:
+            try:
+                drop = Drop.objects.get(id=instance.active_drop.id)
+                drop.is_drop_stop = True
+                drop.drop_date = None
+                drop.drop_time = None
+                drop.save()
+            except Drop.DoesNotExist:
+                pass
+
+            # instance.active_drop = None
+            # instance.save()
 
         return instance
 
