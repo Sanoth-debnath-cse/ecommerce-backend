@@ -60,6 +60,10 @@ class ShopDetailsSerializer(ShopCreateSerializer):
     is_drop_stop_value = serializers.BooleanField(
         read_only=True, source="active_drop.is_drop_stop"
     )
+    drop_code = serializers.CharField(write_only=True, required=False)
+    drop_code_value = serializers.CharField(
+        read_only=True, required=False, source="active_drop.drop_code"
+    )
     # drop_expire_date_value = serializers.DateField(
     #     read_only=True, source="active_drop.drop_date"
     # )
@@ -76,6 +80,8 @@ class ShopDetailsSerializer(ShopCreateSerializer):
             "drop_time_value",
             "is_drop_stop",
             "is_drop_stop_value",
+            "drop_code",
+            "drop_code_value",
             # "drop_expire_date",
             # "drop_expire_time",
             # "drop_expire_date_value",
@@ -91,6 +97,7 @@ class ShopDetailsSerializer(ShopCreateSerializer):
         drop_date = validated_data.pop("drop_date", None)
         drop_time = validated_data.pop("drop_time", None)
         is_drop_stop = validated_data.pop("is_drop_stop", False)
+        drop_code = validated_data.pop("drop_code", "")
         # drop_expire_date = validated_data.pop("drop_expire_date", None)
         # drop_expire_time = validated_data.pop("drop_expire_time", None)
 
@@ -101,6 +108,7 @@ class ShopDetailsSerializer(ShopCreateSerializer):
                 drop_date=drop_date,
                 drop_time=drop_time,
                 shop=instance,
+                drop_code=drop_code,
                 # drop_expire_date=drop_expire_date,
                 # drop_expire_time=drop_expire_time,
             )

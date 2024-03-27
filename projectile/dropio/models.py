@@ -27,6 +27,7 @@ class Drop(BaseModel):
         to=DropUser, through="dropio.DropUserConnector", blank=True
     )
     is_drop_stop = models.BooleanField(default=False)
+    drop_code = models.CharField(max_length=150, blank=True)
 
 
 class DropUserConnector(BaseModel):

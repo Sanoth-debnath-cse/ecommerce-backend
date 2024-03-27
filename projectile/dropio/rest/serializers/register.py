@@ -14,7 +14,10 @@ class DropUserCreateSerializer(serializers.Serializer):
     drop_phone = PhoneNumberField(required=True)
 
     def create(self, validated_data):
-        otp = random.randint(100000, 999999)
+        # otp = random.randint(100000, 999999)
+        shop_obj = Shop.objects.first()
+        if shop_obj.active_drop:
+            otp = shop_obj.active_drop.drop_code
 
         drop_phone = validated_data.get("drop_phone", None)
 
